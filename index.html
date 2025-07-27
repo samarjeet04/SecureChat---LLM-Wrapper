@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#GPT - Secure LLM Wrapper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+    <div class="container-fluid">
+        <div class="row justify-content-center min-vh-100 align-items-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-5">
+                            <h1 class="display-4 mb-3" style="background: linear-gradient(135deg, #0084ff, #00a8ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
+                                <i class="fas fa-shield-alt" style="color: #0084ff;"></i> #GPT
+                            </h1>
+                            <p class="lead" style="color: #d0d0d0; font-weight: 500;">Secure LLM wrapper with automatic PII replacement</p>
+                        </div>
+
+                        <!-- Flash Messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <!-- Configuration Form -->
+                        <form method="POST" action="{{ url_for('configure_api') }}">
+                            <!-- API Provider Selection -->
+                            <div class="mb-4">
+                                <label for="api_provider" class="form-label" style="color: #e0e0e0; font-weight: 600;">
+                                    <i class="fas fa-cogs text-primary"></i> AI Model Provider
+                                </label>
+                                <select class="form-select" id="api_provider" name="api_provider" required>
+                                    <option value="openai">OpenAI (GPT-3.5/GPT-4)</option>
+                                    <option value="anthropic">Anthropic (Claude)</option>
+                                    <option value="gemini">Google Gemini</option>
+                                    <option value="deepseek">DeepSeek</option>
+                                    <option value="grok">xAI Grok</option>
+                                </select>
+                            </div>
+
+                            <!-- API Key -->
+                            <div class="mb-4">
+                                <label for="api_key" class="form-label" style="color: #e0e0e0; font-weight: 600;">
+                                    <i class="fas fa-key text-warning"></i> API Key
+                                </label>
+                                <input type="password" class="form-control" id="api_key" name="api_key" placeholder="Enter your API key" required>
+                                <div class="form-text" style="color: #b0b0b0;">
+                                    Your API key is stored securely in session only. 
+                                    <span id="api-help-text">Get your OpenAI API key from platform.openai.com</span>
+                                </div>
+                            </div>
+
+                            <!-- Connect Button -->
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, #0084ff, #00a8ff); border: none; font-weight: 600; padding: 14px; border-radius: 12px; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0, 132, 255, 0.3);" 
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 132, 255, 0.4)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(0, 132, 255, 0.3)'">
+                                    <i class="fas fa-plug"></i> Connect & Test API
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Security Features -->
+                        <div class="card border-0" style="background: rgba(45, 45, 45, 0.6); backdrop-filter: blur(10px);">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #ffc107; font-weight: 600;">
+                                    <i class="fas fa-shield-alt"></i> Security Features
+                                </h5>
+                                <p class="card-text" style="color: #d0d0d0; font-size: 0.95rem;">This application automatically detects and replaces with synthetic values:</p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled" style="font-size: 0.9rem;">
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Email addresses</li>
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Phone numbers</li>
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Social Security Numbers</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled" style="font-size: 0.9rem;">
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Names (common)</li>
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Dates of birth</li>
+                                            <li style="color: #e0e0e0; margin-bottom: 6px;"><i class="fas fa-check text-success me-2"></i> Physical addresses</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instructions -->
+                        <div class="mt-4 text-center">
+                            <small style="color: #b0b0b0; font-size: 0.9rem;">
+                                <i class="fas fa-info-circle text-info"></i> 
+                                Configure your LLM API above to start chatting securely
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update help text based on provider selection
+        document.getElementById('api_provider').addEventListener('change', function() {
+            const provider = this.value;
+            const helpText = document.getElementById('api-help-text');
+            
+            switch(provider) {
+                case 'openai':
+                    helpText.textContent = 'Get your OpenAI API key from platform.openai.com';
+                    break;
+                case 'anthropic':
+                    helpText.textContent = 'Get your Anthropic API key from console.anthropic.com';
+                    break;
+                case 'gemini':
+                    helpText.textContent = 'Get your Gemini API key from aistudio.google.com';
+                    break;
+                case 'deepseek':
+                    helpText.textContent = 'Get your DeepSeek API key from platform.deepseek.com';
+                    break;
+                case 'grok':
+                    helpText.textContent = 'Get your xAI API key from console.x.ai';
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
